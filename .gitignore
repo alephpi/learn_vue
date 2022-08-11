@@ -1,4 +1,4 @@
 *test*
-/examples
-**/*example*
+
 **/*.ipynb
+/*/example*.html

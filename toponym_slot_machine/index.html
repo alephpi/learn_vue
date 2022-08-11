@@ -7,14 +7,7 @@
     <title>demo</title>
   </head>
   <body>
-    <script type="module">
-      import typonym_json from "./data_structured.json" assert { type: "json" };
-      var roll = () => {
-        let keys = Object.keys(typonym_json);
-        console.log(keys);
-        console.log("hello world");
-      };
-    </script>
-    <button onclick="roll()"></button>
+    <script type="module" src="./app_new.js"></script>
+    <button v-on:click="roll()"></button>
   </body>
 </html>
