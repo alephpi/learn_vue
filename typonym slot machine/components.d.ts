@@ -11,5 +11,7 @@ declare module '@vue/runtime-core' {
     Footer: typeof import('./src/components/Footer.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SlotMachine: typeof import('./src/components/SlotMachine.vue')['default']
+    SlotReel: typeof import('./src/components/SlotReel.vue')['default']
   }
 }
