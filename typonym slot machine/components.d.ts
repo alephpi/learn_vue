@@ -9,8 +9,11 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Counter: typeof import('./src/components/Counter.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
+    NumberScroll: typeof import('./src/components/NumberScroll.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ScrollNumber: typeof import('./src/components/ScrollNumber.vue')['default']
+    ScrollNumberItem: typeof import('./src/components/ScrollNumberItem.vue')['default']
     SlotMachine: typeof import('./src/components/SlotMachine.vue')['default']
     SlotReel: typeof import('./src/components/SlotReel.vue')['default']
   }

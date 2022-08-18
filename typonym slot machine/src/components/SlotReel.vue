@@ -21,7 +21,7 @@ export default {
         ),
       },
 
-      reelTileCount: 15,
+      reelTileCount: 10,
       reelTileData: null,
       reelSourceData: [
         {
@@ -100,31 +100,32 @@ export default {
       window.CP.exitedLoop(0)
     })
 
-    function shuffle(array) {
-      let currentIndex = array.length
-      let temporaryValue
-      let randomIndex
+    // function shuffle(array) {
+    //   let currentIndex = array.length
+    //   let temporaryValue
+    //   let randomIndex
 
-      // While there remain elements to shuffle...
-      while (currentIndex !== 0) {
-        if (window.CP.shouldStopExecution(1))
-          break
+    //   // While there remain elements to shuffle...
+    //   while (currentIndex !== 0) {
+    //     if (window.CP.shouldStopExecution(1))
+    //       break
 
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex)
-        currentIndex -= 1
+    //     // Pick a remaining element...
+    //     randomIndex = Math.floor(Math.random() * currentIndex)
+    //     currentIndex -= 1
 
-        // And swap it with the current element.
-        temporaryValue = array[currentIndex]
-        array[currentIndex] = array[randomIndex]
-        array[randomIndex] = temporaryValue
-      }
-      window.CP.exitedLoop(1)
+    //     // And swap it with the current element.
+    //     temporaryValue = array[currentIndex]
+    //     array[currentIndex] = array[randomIndex]
+    //     array[randomIndex] = temporaryValue
+    //   }
+    //   window.CP.exitedLoop(1)
 
-      return array
-    }
+    //   return array
+    // }
 
-    this.reelTileData = shuffle(frs)
+    // this.reelTileData = shuffle(frs)
+    this.reelTileData = frs
   },
   mounted() {
     this.$el.addEventListener('transitionend', this.animateEnd)
@@ -187,11 +188,21 @@ export default {
 <template>
   <div class="Reel" :class="{ 'is-locked': locked }" @mousedown="lock()">
     <div class="Reel-inner">
-      <img class="Reel-image" :src="reelTileData[tile1Index].image">
+      <img class="Reel-image" i-carbon-number-1 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-2 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-3 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-4 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-5 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-6 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-7 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-8 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-9 w-10 h-22 inline-block>
+      <img class="Reel-image" i-carbon-number-0 w-10 h-22 inline-block>
+      <!-- <img class="Reel-image" :src="reelTileData[tile1Index].image">
       <img class="Reel-image" :src="reelTileData[tile2Index].image">
       <img class="Reel-image" :src="reelTileData[tile3Index].image">
       <img class="Reel-image" :src="reelTileData[tile4Index].image">
-      <img class="Reel-image" :src="reelTileData[tile5Index].image">
+      <img class="Reel-image" :src="reelTileData[tile5Index].image"> -->
     </div>
   </div>
 </template>
@@ -200,8 +211,8 @@ export default {
 .Reel {
   width: 90px;
   width: var(--tileSize);
-  height: calc(90px * 2.333);
-  height: calc(var(--tileSize) * 2.333);
+  height: calc(90px * 1);
+  height: calc(var(--tileSize) * 1);
   overflow: hidden;
 }
 .Reel.is-locked {
@@ -213,8 +224,8 @@ export default {
 }
 .Reel-inner {
   position: relative;
-  top: calc(90px * -1 * 1.333);
-  top: calc(var(--tileSize) * -1 * 1.333);
+  top: calc(90px * -1 * 4);
+  top: calc(var(--tileSize) * -1 * 4);
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -233,7 +244,7 @@ export default {
 .Reel-image {
   width: 90px;
   width: var(--tileSize);
-  width: 90px;
-  width: var(--tileSize);
+  height: 90px;
+  height: var(--tileSize);
 }
 </style>
