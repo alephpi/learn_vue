@@ -15,6 +15,8 @@ declare module '@vue/runtime-core' {
     ScrollNumber: typeof import('./src/components/ScrollNumber.vue')['default']
     ScrollNumberItem: typeof import('./src/components/ScrollNumberItem.vue')['default']
     SlotMachine: typeof import('./src/components/SlotMachine.vue')['default']
+    SlotMachineScrollNumber: typeof import('./src/components/SlotMachineScrollNumber.vue')['default']
     SlotReel: typeof import('./src/components/SlotReel.vue')['default']
+    YetAnotherSlotReel: typeof import('./src/components/YetAnotherSlotReel.vue')['default']
   }
 }

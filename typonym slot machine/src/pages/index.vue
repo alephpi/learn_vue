@@ -154,5 +154,12 @@ watch([shengLocked, shiLocked, xianLocked], ([newshengLocked, newshiLocked, newx
       <li>市号：{{ shiHao }}</li>
       <li>县号：{{ xianHao }}</li>
     </ul>
+    <!-- <div v-for="item in 6" :key="item" class="slot-reel">
+      <ul class="scroll">
+        <li v-for="i in 9" :key="i">
+          {{ i }}
+        </li>
+      </ul>
+    </div> -->
   </div>
 </template>
