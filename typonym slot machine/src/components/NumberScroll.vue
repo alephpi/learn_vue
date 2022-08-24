@@ -1,112 +1,64 @@
+<!-- eslint-disable vue/first-attribute-linebreak -->
 <!-- eslint-disable prefer-const -->
 <script setup>
-import { onMounted, ref } from 'vue'
-const list = [
-  {
-    title: '0',
-  },
-  {
-    title: '1',
-  },
-  {
-    title: '2',
-  },
-  {
-    title: '3',
-  },
-  {
-    title: '4',
-  },
-  {
-    title: '5',
-  },
-  {
-    title: '6',
-  },
-  {
-    title: '7',
-  },
-  {
-    title: '8',
-  },
-  {
-    title: '9',
-  },
-] // 奖品列表，目前最多支持7个，想支持更多，可以手动添加对应的css样式动画
-
-let winner = null // 指定的奖品 null时为不中奖
-let loading = false // 抽奖执行状态，防止用户多次点击
-let gundongElement = null // 储存获取到的滚动容器的标签
-let animationClass = [] // 3个抽奖模块对应的动画属性,方便后来对应添加和移除该class样式
-let newResult = '330802'
+import { onMounted, reactive, ref } from 'vue'
+const emit = defineEmits(['animationEnd'])
+// 暴露animation方法给父组件
+defineExpose({ animation })
+// let props = defineProps(['code'])
+const numerals = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // 奖品列表，目前最多支持7个，想支持更多，可以手动添加对应的css样式动画
+const digits = 6
+// let loading = ref(false)
+const scroll_activated = ref(false)
+const scroll_fixed = ref(false)
+const rotations = reactive([
+  { id: 0, degree: 0 },
+  { id: 1, degree: 0 },
+  { id: 2, degree: 0 },
+  { id: 3, degree: 0 },
+  { id: 4, degree: 0 },
+  { id: 5, degree: 0 },
+])
 
 onMounted(() => {
   // 通过获取奖品个数，来改变css样式中每个奖品动画的旋转角度
   // var(--nums) 实现css动画根据奖品个数，动态改变
   const root = document.querySelector(':root')
-  root.style.setProperty('--nums', list.length)
+  root.style.setProperty('--nums', numerals.length)
 })
 
-function start() {
-  if (!loading) {
-    gundongElement = document.querySelectorAll('.gundong')
-    gundongElement.forEach((element, index) => {
-      if (animationClass[index])
-        element.classList.remove(animationClass[index].class)
-    })
-    winCallback()
-    loading = true
+function animation(code) {
+  for (let id in rotations) {
+    // rotations[id].degree = Math.floor(Math.random() * numerals.length)
+    rotations[id].degree = code[id]
+    console.log(rotations[id].degree)
   }
-}
-// 中奖返回方法
-function winCallback() {
+  scroll_activated.value = false
   setTimeout(() => {
-    /* 此处是为了解决当下次抽中的奖励与这次相同，动画不重新执行的 */
-    /* 添加一个定时器，是为了解决动画属性的替换效果，实现动画的重新执行 */
-    gundongElement.forEach((element, index) => {
-      element.classList.add(getAnimationClass(index))
-      setTimeout(() => {
-        element.style.transform = `rotatex(${animationClass[index].rotate}deg)`
-      }, 2000)
-    })
-  }, 0)
-  // loading = false
-  // 因为动画时间为 3s ，所以这里4s后获取结果，其实结果早就定下了，只是何时显示，告诉用户
+    scroll_activated.value = true
+    // scroll_fixed.value = false
+    // scroll_fixed.value = true
+  }, 2)
   setTimeout(() => {
-    loading = false
+    scroll_fixed.value = false
+    scroll_fixed.value = true
+    emit('animationEnd')
   }, 2000)
-}
-// 获取对应的class样式，并储存起来，方便后来的class移除
-function getAnimationClass(index) {
-  let ran = newResult[index]
-
-  animationClass[index] = {
-    num: ran,
-    class: `wr${ran}`,
-    rotate: (360 / list.length) * -ran,
-  }
-  return `wr${ran}`
-}
-// 随机一个整数的方法
-function random(min, max) {
-  return parseInt(Math.random() * (max - min + 1) + min)
 }
 </script>
 
 <template>
   <div class="overall">
     <div class="cj-box">
-      <div v-for="item in 6" :key="item" class="cj-block">
-        <ul class="gundong">
-          <li v-for="(i, index) in list" :key="index"
-            :style="`transform: rotateX(${360 / list.length * index}deg)  translateZ(${13.6 * list.length}px)`">
-            {{ i.title }}
+      <div v-for="{ id, degree } in rotations" :key="id" class="cj-block">
+        <ul class="gundong" :class="scroll_activated ? `wr${degree}` : ``"
+          :style="scroll_fixed ? { transform: `rotateX(${360 / numerals.length * -degree}deg)` } : {}">
+          <li v-for="i in numerals" :key="i"
+            :style="`transform: rotateX(${360 / numerals.length * i}deg)  translateZ(${13.6 * numerals.length}px)`">
+            {{ i }}
           </li>
         </ul>
       </div>
-    </div>
-    <div class="chou" @click="start">
-      抽奖
     </div>
   </div>
 </template>
@@ -114,24 +66,6 @@ function random(min, max) {
 <style scoped>
 .overall {
   perspective: 3000px;
-}
-
-/* 抽奖按钮 */
-.chou {
-  user-select: none;
-  cursor: pointer;
-  padding: 10px;
-  margin: 20px auto;
-  color: white;
-  background: #19aca4;
-  width: 100px;
-  font-size: 20px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px #ccc;
-}
-
-.chou:active {
-  transform: scale(0.9);
 }
 
 /* 视窗 */
@@ -201,7 +135,7 @@ function random(min, max) {
 .wr8,
 .wr9 {
   /* 每个转动的时间 */
-  animation-duration: 1s;
+  animation-duration: 2s;
   animation-timing-function: ease;
   animation-fill-mode: both;
   animation-iteration-count: 1;
@@ -255,55 +189,55 @@ function random(min, max) {
 
 @keyframes play1 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -1));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-1));
   }
 }
 
 @keyframes play2 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -2));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-2));
   }
 }
 
 @keyframes play3 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -3));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-3));
   }
 }
 
 @keyframes play4 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -4));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-4));
   }
 }
 
 @keyframes play5 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -5));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-5));
   }
 }
 
 @keyframes play6 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -6));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-6));
   }
 }
 
 @keyframes play7 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -7));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-7));
   }
 }
 
 @keyframes play8 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -8));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-8));
   }
 }
 
 @keyframes play9 {
   to {
-    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) * -9));
+    transform: rotateX(calc(5 * 360deg + 360deg / var(--nums) *-9));
   }
 }
 </style>

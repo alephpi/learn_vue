@@ -1,327 +1,201 @@
-<script>
-import SlotReel from './SlotReel.vue'
-export default {
-  components: {
-    SlotReel,
-  },
-  data() {
-    return {
-      spend: 6,
-      credits: 6,
-      win: 0,
-      resultData: false,
-      canlock: true,
-      waslocked: false,
-      audio: {
-        win: new Audio(
-          'https://freesound.org/data/previews/387/387232_1474204-lq.mp3',
-        ),
-        insertCoin: new Audio(
-          'https://freesound.org/data/previews/276/276091_5123851-lq.mp3',
-        ),
-        bigwin: new Audio(
-          'https://freesound.org/data/previews/270/270319_5123851-lq.mp3',
-        ),
-      },
-    }
-  },
-  computed: {},
-  beforeMount() {},
-  mounted() {
-    window.addEventListener('keydown', this.keydown)
-  },
+<script lang="ts"></script>
 
-  methods: {
-    keydown(e) {
-      // console.log(e.which)
-      const key = {
-        one: 49,
-        two: 50,
-        three: 51,
-        space: 32,
-      }
-
-      if (e.which === key.one) {
-        this.$refs.reel1.lock()
-        e.preventDefault()
-      }
-      else if (e.which === key.two) {
-        this.$refs.reel2.lock()
-        e.preventDefault()
-      }
-      else if (e.which === key.three) {
-        this.$refs.reel3.lock()
-        e.preventDefault()
-      }
-      else if (e.which === key.space) {
-        this.spin()
-        e.preventDefault()
-      }
-    },
-    spin() {
-      if (this.credits > 0 && !this.resultData) {
-        this.resultData = []
-        this.credits = this.credits - 0.5
-        this.$refs.reel1.run()
-        this.$refs.reel2.run()
-        this.$refs.reel3.run()
-      }
-    },
-    insertCoin() {
-      this.audio.insertCoin.currentTime = 0
-      this.audio.insertCoin.play()
-      this.credits += 0.5
-      this.spend += 0.5
-    },
-    takeWin() {
-      if (this.win > 0) {
-        this.credits += this.win
-        this.win = 0
-      }
-    },
-    reelStopped(resultData, wasLocked) {
-      if (wasLocked)
-        this.waslocked = wasLocked
-
-      this.resultData.push(resultData)
-      if (this.resultData.length === 3) {
-        this.checkWin(this.resultData)
-        if (this.waslocked) {
-          this.waslocked = false
-          this.canlock = false
-        }
-        else {
-          this.canlock = true
-        }
-      }
-    },
-    checkWin() {
-      if (this.resultData.length === 3) {
-        // ;-)
-        const v1 = this.resultData[0]
-        const v2 = this.resultData[1]
-        const v3 = this.resultData[2]
-        if (v1.name === v2.name && v2.name === v3.name) {
-          if (v1.value >= 10)
-            this.audio.bigwin.play()
-          else this.audio.win.play()
-
-          this.win += v1.value
-          this.waslocked = true // prevent lock after an unlocked win
-        }
-        else {
-          const bar1 = v1.name === 'Bar'
-          const bar2 = v2.name === 'Bar'
-          const bar3 = v3.name === 'Bar'
-          if ((bar1 && bar2) || (bar1 && bar3) || (bar2 && bar3)) {
-            // this.audio.bigwin.play()
-            // this.win += 16
-            // this.waslocked = true // prevent lock after an unlocked win
-          }
-          else if (bar1 || bar2 || bar3) {
-            // this.audio.win.play()
-            // this.win += 4
-            // this.waslocked = true // prevent lock after an unlocked win
-          }
-          else {
-            // Lose : (
-          }
-        }
-      }
-      this.resultData = false
-    },
-  },
+<!-- eslint-disable @typescript-eslint/indent -->
+<!-- eslint-disable @typescript-eslint/consistent-type-definitions -->
+<!-- eslint-disable no-alert -->
+<!-- eslint-disable no-undef-init -->
+<!-- eslint-disable prefer-const -->
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import type { Ref } from 'vue'
+import code from '../assets/pcas-code.json'
+import NumberScroll from './NumberScroll.vue'
+type pcas = {
+    value: string
+    label: string
+    children?: Array<pcas>
 }
+let shengMing: Ref<string> = ref('--')
+let shiMing: Ref<string> = ref('--')
+let xianMing: Ref<string> = ref('--')
+let shengHao: Ref<string | undefined> = ref('--')
+let shiHao: Ref<string | undefined> = ref('--')
+let xianHao: Ref<string | undefined> = ref('--')
+let shengLocked = ref(false)
+let shiLocked = ref(false)
+let xianLocked = ref(false)
+let pcas_code: Array<pcas> = code
+let cas_code: Array<pcas> | undefined
+let as_code: Array<pcas> | undefined
+
+let loading = ref(false)
+let reel = ref()
+
+function run() {
+    if (!loading.value) {
+        loading.value = true
+        if (!shengLocked.value)
+            cas_code = pickSheng(pcas_code)
+
+        if (!shiLocked.value)
+            as_code = pickShi(cas_code)
+
+        if (!xianLocked.value)
+            pickXian(as_code)
+        console.log('running')
+    }
+    else {
+        console.log('loading...')
+    }
+}
+
+watch(xianHao, (newxianHao) => {
+    reel.value.animation(newxianHao)
+})
+
+function pick(codearray?: Array<pcas>) {
+    if (codearray === undefined)
+        return undefined
+    let id = Math.floor(Math.random() * codearray.length)
+    return codearray[id]
+}
+function pickSheng(shengArray?: Array<pcas>) {
+    let sheng = pick(shengArray)
+    if (sheng === undefined)
+        return undefined
+    shengMing.value = sheng.label
+    shengHao.value = sheng.value
+    return sheng.children
+}
+function pickShi(shiArray?: Array<pcas>) {
+    let shi = pick(shiArray)
+    if (shi === undefined)
+        return undefined
+    shiMing.value = shi.label
+    shiHao.value = shi.value
+    return shi.children
+}
+function pickXian(xianArray?: Array<pcas>) {
+    let xian = pick(xianArray)
+    if (xian === undefined)
+        return undefined
+    xianMing.value = xian.label
+    xianHao.value = xian.value
+    return undefined
+}
+
+function lockSheng() {
+    // lock
+    if (!shengLocked.value) {
+        shengLocked.value = true
+    }
+    // unlock all the sub locks
+    else {
+        shengLocked.value = false
+        shiLocked.value = false
+        xianLocked.value = false
+    }
+}
+
+function lockShi() {
+    // lock all the sup locks
+    if (!shiLocked.value) {
+        shengLocked.value = true
+        shiLocked.value = true
+    }
+    // unlock all the sub locks
+    else {
+        shiLocked.value = false
+        xianLocked.value = false
+    }
+}
+
+function lockXian() {
+    // lock all the sup locks
+    if (!xianLocked.value) {
+        shengLocked.value = true
+        shiLocked.value = true
+        xianLocked.value = true
+    }
+    // unlock
+    else {
+        xianLocked.value = false
+    }
+}
+watch(
+    [shengLocked, shiLocked, xianLocked],
+    ([newshengLocked, newshiLocked, newxianLocked]) => {
+        console.log(
+            (shengLocked.value && shiLocked.value) || (!shiLocked.value && !xianLocked.value)
+                ? 'well'
+                : 'bad',
+        )
+    },
+)
 </script>
 
+<!-- eslint-disable vue/html-indent -->
 <template>
-  <div class="SlotMachine">
-    <div class="SlotMachine-reels">
-      <div class="SlotMachine-shadow" />
-      <div class="SlotMachine-payline" />
-      <SlotReel ref="reel1" :canlock="canlock" @stopped="reelStopped" />
-      <SlotReel ref="reel2" :canlock="canlock" @stopped="reelStopped" />
-      <SlotReel ref="reel3" :canlock="canlock" @stopped="reelStopped" />
+    <div>
+        <br>
+        <br>
+        <button @click="lockSheng">
+            lockSheng {{ shengLocked ? "locked" : "unlocked" }}
+        </button>
+        <br>
+        <br>
+        <button @click="lockShi">
+            lockShi {{ shiLocked ? "locked" : "unlocked" }}
+        </button>
+        <br>
+        <br>
+        <button @click="lockXian">
+            lockXian {{ xianLocked ? "locked" : "unlocked" }}
+        </button>
+        <ul>
+            <li>省名：{{ shengMing }}</li>
+            <li>市名：{{ shiMing }}</li>
+            <li>县名：{{ xianMing }}</li>
+        </ul>
+        <ul>
+            <li>省号：{{ shengHao }}</li>
+            <li>市号：{{ shiHao }}</li>
+            <li>县号：{{ xianHao }}</li>
+        </ul>
+        <!-- <div v-for="item in 6" :key="item" class="slot-reel">
+      <ul class="scroll">
+        <li v-for="i in 9" :key="i">
+          {{ i }}
+        </li>
+      </ul>
+    </div> -->
     </div>
-    <div class="SlotMachine-stats">
-      <div class="SlotMachine-coin" @mousedown="insertCoin()" />
-      <div class="SlotMachine-stat is-credit">
-        <div class="SlotMachine-statTitle">
-          Credits
-        </div>
-        <div class="SlotMachine-statValue">
-          ABT {{ credits.toFixed(2) }}
-        </div>
-        <div class="SlotMachine-statSub">
-          spend ABT {{ spend.toFixed(2) }}
-        </div>
-      </div>
-      <div class="SlotMachine-stat is-win">
-        <div class="SlotMachine-statTitle">
-          Won
-        </div>
-        <div class="SlotMachine-statValue">
-          ABT {{ win.toFixed(2) }}
-        </div>
-      </div>
-    </div>
-    <div class="SlotMachine-actions">
-      <button class="SlotMachine-button is-spin" @mousedown="spin()">
-        Play
-      </button>
-      <div
-        class="SlotMachine-button is-win"
-        :class="{ 'has-win': win }"
-        @mousedown="takeWin()"
-      >
-        Take Win
-      </div>
-    </div>
-  </div>
+    <NumberScroll ref="reel" @animation-end="loading = false" />
+    <button class="chou" :disabled="loading" @click="run">
+        {{ loading ? "进行中" : "开始" }}
+    </button>
 </template>
 
-<style scoped>
-.SlotMachine {
-  border-radius: 5px;
-}
-.SlotMachine-reels {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  position: relative;
-}
-.SlotMachine-shadow {
-  border-radius: 4px 4px 0 0;
-  pointer-events: none;
-  z-index: 99;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  -webkit-box-shadow: inset 0 25px 30px -5px gray(0, 0.1),
-    inset 0 5px 10px -2px gray(0, 0.2), inset 0 -25px 30px -5px gray(0, 0.1),
-    inset 0 -5px 10px -2px gray(0, 0.2);
-  box-shadow: inset 0 25px 30px -5px gray(0, 0.1),
-    inset 0 5px 10px -2px gray(0, 0.2), inset 0 -25px 30px -5px gray(0, 0.1),
-    inset 0 -5px 10px -2px gray(0, 0.2);
-}
-.SlotMachine-payline {
-  position: absolute;
-  top: calc(90px * 1 * 1.1666);
-  top: calc(var(--tileSize) * 1 * 1.1666);
-  height: 1px;
-  width: 100%;
-  background: gray(0, 0.3);
+<style>
+/* 抽奖按钮 */
+.chou {
+    user-select: none;
+    cursor: pointer;
+    padding: 10px;
+    margin: 20px auto;
+    color: white;
+    background: #19aca4;
+    width: 100px;
+    font-size: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #ccc;
 }
 
-.SlotMachine-stats {
-  width: calc(90px * 3);
-  width: calc(var(--tileSize) * 3);
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  background: #000;
-  -webkit-box-pack: end;
-  -ms-flex-pack: end;
-  justify-content: flex-end;
-  padding: 10px 0;
-}
-.SlotMachine-coin {
-  width: 6px;
-  height: 38px;
-  background: rgb(48, 48, 48);
-  border: 3px solid rgb(94, 94, 94);
-  border-radius: 6px;
-  margin: 12px 10px 0 10px;
-}
-.SlotMachine-coin:hover {
-  background: rgb(255, 255, 255);
-}
-.SlotMachine-stat {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  margin-right: 10px;
-  -webkit-box-flex: 1;
-  -ms-flex-positive: 1;
-  flex-grow: 1;
-}
-.SlotMachine-statTitle {
-  font-size: 12px;
-  color: rgb(145, 145, 145);
-}
-.SlotMachine-statValue {
-  padding: 5px 10px;
-  background: rgba(255, 0, 0, 0.15);
-  border-radius: 2px;
-  border: 1px solid rgb(0, 0, 0);
-  font-size: 25px;
-  text-align: right;
-  color: rgba(255, 0, 0, 0.8);
-  text-shadow: 0 0 4px rgba(255, 0, 0, 0.5);
-}
-.SlotMachine-statSub {
-  font-size: 9px;
-  color: rgb(119, 119, 119);
-  text-align: right;
+.chou:active {
+    transform: scale(0.9);
 }
 
-.SlotMachine-actions {
-  width: calc(90px * 3);
-  width: calc(var(--tileSize) * 3);
-  padding: 10px 0px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: end;
-  -ms-flex-pack: end;
-  justify-content: flex-end;
-  background: rgb(48, 48, 48);
-  border-radius: 0 0 4px 4px;
-}
-.SlotMachine-button {
-  font-size: 17px;
-  font-weight: bold;
-  padding: 14px 12px;
-  margin-left: 20px;
-  margin-right: 10px;
-  border-radius: 5px;
-  -webkit-box-shadow: 0 1px 2px 2px rgb(0, 0, 0);
-  box-shadow: 0 1px 2px 2px rgb(0, 0, 0);
-}
-.SlotMachine-button:focus {
-  outline: none;
-}
-.SlotMachine-button:active {
-  -webkit-box-shadow: 0 0 2px 1px rgb(0, 0, 0);
-  box-shadow: 0 0 2px 1px rgb(0, 0, 0);
-}
-
-.SlotMachine-button.is-spin {
-  background: rgba(0, 255, 0, 0.4);
-  border: 1px solid rgba(0, 255, 0, 0.4);
-}
-.SlotMachine-button.is-spin:hover {
-  background: rgba(0, 255, 0, 0.43);
-}
-.SlotMachine-button.is-spin:active {
-  background: rgba(0, 255, 0, 0.46);
-}
-
-.SlotMachine-button.is-win {
-  background: rgba(255, 0, 0, 0.4);
-  border: 1px solid rgba(255, 0, 0, 0.5);
-}
-.SlotMachine-button.is-win.has-win {
-  background: rgba(255, 0, 0, 0.99);
-}
-.SlotMachine-button.is-win:hover {
-  background: rgba(255, 0, 0, 0.65);
-}
-.SlotMachine-button.is-win:active {
-  background: rgba(255, 0, 0, 0.7);
+.chou:disabled {
+    background: #9d9d9d
 }
 </style>

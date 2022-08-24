@@ -1,15 +1,10 @@
 <script>
-import NumberScroll from './components/NumberScroll.vue'
-import NumberScrollTest from './NumberScrollTest.vue'
-// import SlotMachine from './components/SlotMachine.vue'
-import ScrollNumber from './components/ScrollNumber.vue'
-
+import SlotMachine from './components/SlotMachine.vue'
 export default {
   components: {
-    // SlotMachine,
+    SlotMachine,
     // ScrollNumber,
-    NumberScroll,
-    NumberScrollTest,
+    // NumberScroll,
   },
 }
 </script>
@@ -18,11 +13,8 @@ export default {
   <main font-sans p="x-4 y-10" text="center gray-700 dark:gray-200">
     <div>
       <router-view />
-      <!-- <SlotMachine /> -->
+      <SlotMachine />
       <!-- <NumberScroll /> -->
-      <NumberScrollTest />
-      <!-- <YetAnotherSlotReel /> -->
-      <!-- <ScrollNumber /> -->
     </div>
     <Footer />
   </main>
