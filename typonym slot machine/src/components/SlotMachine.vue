@@ -27,6 +27,7 @@ let xianLocked = ref(false)
 let pcas_code: Array<pcas> = code
 let cas_code: Array<pcas> | undefined
 let as_code: Array<pcas> | undefined
+let full_code = ref()
 
 let loading = ref(false)
 let reel = ref()
@@ -41,7 +42,7 @@ function run() {
             as_code = pickShi(cas_code)
 
         if (!xianLocked.value)
-            pickXian(as_code)
+            full_code.value = pickXian(as_code)
         console.log('running')
     }
     else {
@@ -49,8 +50,8 @@ function run() {
     }
 }
 
-watch(xianHao, (newxianHao) => {
-    reel.value.animation(newxianHao)
+watch(full_code, (newFullCode) => {
+    reel.value.animation(newFullCode)
 })
 
 function pick(codearray?: Array<pcas>) {
@@ -81,7 +82,7 @@ function pickXian(xianArray?: Array<pcas>) {
         return undefined
     xianMing.value = xian.label
     xianHao.value = xian.value
-    return undefined
+    return xianHao.value
 }
 
 function lockSheng() {
@@ -171,7 +172,7 @@ watch(
     </div> -->
     </div>
     <NumberScroll ref="reel" @animation-end="loading = false" />
-    <button class="chou" :disabled="loading" @click="run">
+    <button class="chou" :disabled="loading || shengLocked && shiLocked && xianLocked" @click="run">
         {{ loading ? "进行中" : "开始" }}
     </button>
 </template>
@@ -198,4 +199,8 @@ watch(
 .chou:disabled {
     background: #9d9d9d
 }
+
+/* .chou:locked {
+    background: #d73939;
+} */
 </style>
