@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     Counter: typeof import('./src/components/Counter.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     NumberScroll: typeof import('./src/components/NumberScroll.vue')['default']
+    NumberScrollTest: typeof import('./src/components/NumberScrollTest.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollNumber: typeof import('./src/components/ScrollNumber.vue')['default']
