@@ -43,6 +43,8 @@ function run() {
 
         if (!xianLocked.value)
             full_code.value = pickXian(as_code)
+
+        reel.value.animation(full_code.value)
         console.log('running')
     }
     else {
@@ -50,9 +52,9 @@ function run() {
     }
 }
 
-watch(full_code, (newFullCode) => {
-    reel.value.animation(newFullCode)
-})
+// watch(full_code, (newFullCode) => {
+//     reel.value.animation(newFullCode)
+// })
 
 function pick(codearray?: Array<pcas>) {
     if (codearray === undefined)
@@ -138,69 +140,154 @@ watch(
 <!-- eslint-disable vue/html-indent -->
 <template>
     <div>
-        <br>
-        <br>
-        <button @click="lockSheng">
-            lockSheng {{ shengLocked ? "locked" : "unlocked" }}
-        </button>
-        <br>
-        <br>
-        <button @click="lockShi">
-            lockShi {{ shiLocked ? "locked" : "unlocked" }}
-        </button>
-        <br>
-        <br>
-        <button @click="lockXian">
-            lockXian {{ xianLocked ? "locked" : "unlocked" }}
-        </button>
-        <ul>
-            <li>省名：{{ shengMing }}</li>
-            <li>市名：{{ shiMing }}</li>
-            <li>县名：{{ xianMing }}</li>
-        </ul>
-        <ul>
-            <li>省号：{{ shengHao }}</li>
-            <li>市号：{{ shiHao }}</li>
-            <li>县号：{{ xianHao }}</li>
-        </ul>
-        <!-- <div v-for="item in 6" :key="item" class="slot-reel">
-      <ul class="scroll">
-        <li v-for="i in 9" :key="i">
-          {{ i }}
-        </li>
-      </ul>
-    </div> -->
+        <NumberScroll ref="reel" :sheng-locked="shengLocked" :shi-locked="shiLocked" :xian-locked="xianLocked"
+            @animation-end="loading = false" />
+        <div class="info-container">
+            <div class="info sheng">
+                <div class="info-title">
+                    省：
+                </div>
+                <div class="info-value">
+                    {{ (loading && !shengLocked) ? "--" : shengMing }}
+                </div>
+            </div>
+            <div class="info shi">
+                <div class="info-title">
+                    市：
+                </div>
+                <div class="info-value">
+                    {{ (loading && !shiLocked) ? "--" : shiMing }}
+                </div>
+            </div>
+            <div class="info xian">
+                <div class="info-title">
+                    县：
+                </div>
+                <div class="info-value">
+                    {{ (loading && !xianLocked) ? "--" : xianMing }}
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="play lock" :disabled="loading" :class="{ locked: shengLocked }" @click="lockSheng">
+                {{ shengLocked ? "锁定省" : "解锁省" }}
+            </button>
+            <button class="play lock" :disabled="loading" :class="{ locked: shiLocked }" @click="lockShi">
+                {{ shiLocked ? "锁定市" : "解锁市" }}
+            </button>
+            <button class="play lock" :disabled="loading" :class="{ locked: xianLocked }" @click="lockXian">
+                {{ xianLocked ? "锁定县" : "解锁县" }}
+            </button>
+            <button class="play" :disabled="loading || shengLocked && shiLocked && xianLocked" @click="run">
+                {{ loading ? "进行中" : "开始" }}
+            </button>
+        </div>
     </div>
-    <NumberScroll ref="reel" @animation-end="loading = false" />
-    <button class="chou" :disabled="loading || shengLocked && shiLocked && xianLocked" @click="run">
-        {{ loading ? "进行中" : "开始" }}
-    </button>
 </template>
 
-<style>
+<style scoped>
 /* 抽奖按钮 */
-.chou {
-    user-select: none;
+.play {
+    /* user-select: none;
     cursor: pointer;
     padding: 10px;
-    margin: 20px auto;
+    /* margin: 20px auto; */
     color: white;
     background: #19aca4;
-    width: 100px;
-    font-size: 20px;
+    width: 70px;
+    /* font-size: 20px; */
+    /* border-radius: 5px; */
+    /* box-shadow: 0 0 10px #ccc; */
+
+    font-size: 17px;
+    font-weight: bold;
+    padding: 14px 12px;
+    margin-left: 10px;
+    margin-right: 10px;
     border-radius: 5px;
-    box-shadow: 0 0 10px #ccc;
+    -webkit-box-shadow: 0 1px 2px 2px rgb(0, 0, 0);
+    box-shadow: 0 1px 2px 2px rgb(0, 0, 0);
 }
 
-.chou:active {
+.play.lock {
+    background: rgb(38, 179, 38);
+}
+
+.play:active {
     transform: scale(0.9);
 }
 
-.chou:disabled {
+.play:disabled {
     background: #9d9d9d
 }
 
-/* .chou:locked {
-    background: #d73939;
-} */
+.play.locked {
+    background: rgb(182, 30, 30)
+}
+
+.info-container {
+    width: calc(300px);
+    background: rgba(75, 209, 236, 0.5);
+    padding: 10px 0;
+    flex-direction: column;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin: auto;
+    box-shadow: 0 0 10px #ccc;
+}
+
+.info {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    margin-right: 10px;
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+}
+
+.info-title {
+    font-size: 15px;
+    /* font-weight: bold; */
+    color: rgb(251, 167, 0);
+    text-align: left;
+    align-self: flex-start;
+}
+
+.info-value {
+    padding: 5px 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+    /* border: 1px solid rgb(0, 0, 0); */
+    font-size: 20px;
+    text-align: right;
+    color: rgba(0, 0, 0, 0.8);
+    /* text-shadow: 0 0 4px rgba(0, 0, 0, 0.5); */
+}
+
+.actions {
+    width: calc(300px);
+    padding: 10px 0px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    background: rgb(48, 48, 48);
+    border-radius: 0 0 4px 4px;
+    margin: auto;
+    box-shadow: 0 0 10px #ccc;
+}
 </style>
