@@ -12,6 +12,7 @@ export default {
 <template>
   <main font-sans p="x-4 y-10" text="center gray-700 dark:gray-200">
     <h1>地名老虎机</h1>
+    <h2>@润心/alephpi</h2>
     <div>
       <router-view />
       <SlotMachine />

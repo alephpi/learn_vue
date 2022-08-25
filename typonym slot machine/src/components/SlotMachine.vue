@@ -170,13 +170,13 @@ watch(
         </div>
         <div class="actions">
             <button class="play lock" :disabled="loading" :class="{ locked: shengLocked }" @click="lockSheng">
-                {{ shengLocked ? "锁定省" : "解锁省" }}
+                {{ !shengLocked ? "锁定省" : "解锁省" }}
             </button>
             <button class="play lock" :disabled="loading" :class="{ locked: shiLocked }" @click="lockShi">
-                {{ shiLocked ? "锁定市" : "解锁市" }}
+                {{ !shiLocked ? "锁定市" : "解锁市" }}
             </button>
             <button class="play lock" :disabled="loading" :class="{ locked: xianLocked }" @click="lockXian">
-                {{ xianLocked ? "锁定县" : "解锁县" }}
+                {{ !xianLocked ? "锁定县" : "解锁县" }}
             </button>
             <button class="play" :disabled="loading || shengLocked && shiLocked && xianLocked" @click="run">
                 {{ loading ? "进行中" : "开始" }}
